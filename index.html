@@ -227,6 +227,16 @@
     display:flex; flex-direction:column; align-items:flex-start; gap:.7rem;
   }
 
+  .game-card__inner.has-bg{
+    background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85));
+    background-size:cover;
+    background-position:center;
+    background-blend-mode:normal;
+  }
+  .card-bg-arcade{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('retro-arcade-bg.jpg'); }
+  .card-bg-pool{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('pool-bg.jpg'); }
+  .card-bg-stickman{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('stickman-bg.jpg'); }
+
   .status-row{
     display:flex; align-items:center; gap:.5rem;
     font-family:'Orbitron', sans-serif;
@@ -607,7 +617,7 @@
     <main class="cabinet-grid">
 
       <article class="game-card">
-        <div class="game-card__inner">
+        <div class="game-card__inner has-bg card-bg-arcade">
           <div class="status-row online"><span class="status-dot"></span>Online</div>
           <div class="emoji-badge">🕹️</div>
           <h2>Retro Arcade</h2>
@@ -617,21 +627,21 @@
       </article>
 
       <article class="game-card is-locked">
-        <div class="game-card__inner">
+        <div class="game-card__inner has-bg card-bg-pool">
           <div class="status-row offline"><span class="status-dot offline"></span>In Development</div>
-          <div class="emoji-badge">🎮</div>
-          <h2>Cabinet 02</h2>
-          <p>A new game is being wired up behind the scenes. Check back soon.</p>
+          <div class="emoji-badge">🎱</div>
+          <h2>Pool</h2>
+          <p>Rack 'em up in a smoky back-room hall. Trick shots and hustles incoming.</p>
           <span class="play-btn is-disabled">LOCKED 🔒</span>
         </div>
       </article>
 
       <article class="game-card is-locked">
-        <div class="game-card__inner">
+        <div class="game-card__inner has-bg card-bg-stickman">
           <div class="status-row offline"><span class="status-dot offline"></span>In Development</div>
-          <div class="emoji-badge">👾</div>
-          <h2>Cabinet 03</h2>
-          <p>Another cabinet is powering up. More coming to the hub soon.</p>
+          <div class="emoji-badge">⚔️</div>
+          <h2>Stickman Fight</h2>
+          <p>Cue-stick brawls in a neon back alley. Beat-em-up chaos is being wired up.</p>
           <span class="play-btn is-disabled">LOCKED 🔒</span>
         </div>
       </article>
