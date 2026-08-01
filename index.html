@@ -227,15 +227,9 @@
     display:flex; flex-direction:column; align-items:flex-start; gap:.7rem;
   }
 
-  .game-card__inner.has-bg{
-    background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85));
-    background-size:cover;
-    background-position:center;
-    background-blend-mode:normal;
-  }
-  .card-bg-arcade{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('retro-arcade-bg.jpg'); }
-  .card-bg-pool{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('pool-bg.jpg'); }
-  .card-bg-stickman{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('stickman-bg.jpg'); }
+  .card-bg-arcade{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('retro-arcade-bg.jpg'); background-size:cover; background-position:center; }
+  .card-bg-pool{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('pool-bg.jpg'); background-size:cover; background-position:center; }
+  .card-bg-stickman{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('stickman-bg.jpg'); background-size:cover; background-position:center; }
 
   .status-row{
     display:flex; align-items:center; gap:.5rem;
@@ -617,7 +611,7 @@
     <main class="cabinet-grid">
 
       <article class="game-card">
-        <div class="game-card__inner has-bg card-bg-arcade">
+        <div class="game-card__inner card-bg-arcade">
           <div class="status-row online"><span class="status-dot"></span>Online</div>
           <div class="emoji-badge">🕹️</div>
           <h2>Retro Arcade</h2>
@@ -627,7 +621,7 @@
       </article>
 
       <article class="game-card is-locked">
-        <div class="game-card__inner has-bg card-bg-pool">
+        <div class="game-card__inner card-bg-pool">
           <div class="status-row offline"><span class="status-dot offline"></span>In Development</div>
           <div class="emoji-badge">🎱</div>
           <h2>Pool</h2>
@@ -637,7 +631,7 @@
       </article>
 
       <article class="game-card is-locked">
-        <div class="game-card__inner has-bg card-bg-stickman">
+        <div class="game-card__inner card-bg-stickman">
           <div class="status-row offline"><span class="status-dot offline"></span>In Development</div>
           <div class="emoji-badge">⚔️</div>
           <h2>Stickman Fight</h2>
