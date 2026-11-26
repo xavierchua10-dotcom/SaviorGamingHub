@@ -58,7 +58,7 @@
 /* ---- game viewer: opens a game page inside the hub, address never changes ---- */
 (function(){
   var wrap=document.getElementById('gameFrameWrap'), ttl=document.getElementById('gameFrameTitle');
-  var frame=null, pushed=false, token=0, cache={};
+  var frame=null, pushed=false, token=0, cache={}, savedY=0;
   var TITLES={arcade:'Retro Arcade',pool:'Pool',pixelart:'Finding Purposes in Life',orbspire:'Orb Spire'};
   function load(key){
     if(cache[key]) return Promise.resolve(cache[key]);
@@ -70,6 +70,7 @@
   function show(key){
     var my=++token;
     ttl.textContent=TITLES[key.split('/')[0]]||'';
+    if(!document.body.classList.contains('game-open')){ savedY=window.pageYOffset||0; document.body.classList.add('game-open'); }
     wrap.classList.add('open'); wrap.setAttribute('aria-hidden','false'); document.documentElement.style.overflow='hidden';
     return load(key).then(function(html){
       if(my!==token) return false;
@@ -86,6 +87,7 @@
   function close(){
     token++; wrap.classList.remove('open'); wrap.setAttribute('aria-hidden','true');
     if(frame){ frame.remove(); frame=null; } document.documentElement.style.overflow=''; pushed=false;
+    if(document.body.classList.contains('game-open')){ document.body.classList.remove('game-open'); window.scrollTo(0,savedY); }
   }
   document.querySelectorAll('[data-game]').forEach(function(a){
     a.addEventListener('click',function(e){ e.preventDefault(); open(a.getAttribute('data-game')); });
