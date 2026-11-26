@@ -1,7 +1,7 @@
 // Savior Gaming Hub service worker: network first (always fresh), cache as offline fallback.
-var CACHE = 'sgh-v1';
+var CACHE = 'sgh-v2';
 self.addEventListener('install', function(e){
-  e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(['./','index.html','manifest.json','favicon-192x192.png','icon-512.png']); }).then(function(){ return self.skipWaiting(); }));
+  e.waitUntil(caches.open(CACHE).then(function(c){ return c.addAll(['./','index.html','css/hub.css','js/hub.js','manifest.json','favicon-192x192.png','icon-512.png']); }).then(function(){ return self.skipWaiting(); }));
 });
 self.addEventListener('activate', function(e){
   e.waitUntil(caches.keys().then(function(keys){
