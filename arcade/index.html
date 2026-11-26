@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0a0014">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192x192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<title>Retro Arcade 5 — by Savior</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Orbitron:wght@500;600;700;800&family=Rajdhani:wght@400;500;600;700&display=optional" rel="stylesheet">
+<link rel="manifest" id="manifestLink" href="">
+<script>
+  (function(){
+    var iconSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">'
+      + '<rect width="512" height="512" rx="96" fill="#0d0122"/>'
+      + '<circle cx="256" cy="256" r="150" fill="url(#g)"/>'
+      + '<defs><radialGradient id="g" cx="35%" cy="30%" r="70%">'
+      + '<stop offset="0%" stop-color="#fff2fb"/>'
+      + '<stop offset="35%" stop-color="#ff2fd8"/>'
+      + '<stop offset="100%" stop-color="#8b2fff"/>'
+      + '</radialGradient></defs>'
+      + '</svg>';
+    var iconUrl = 'data:image/svg+xml;base64,' + btoa(iconSvg);
+    var manifest = {
+      name: 'Retro Arcade 5',
+      short_name: 'Arcade 5',
+      description: 'A neon arcade menu by Savior.',
+      start_url: '.',
+      display: 'standalone',
+      background_color: '#05010f',
+      theme_color: '#05010f',
+      icons: [
+        { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+        { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any' }
+      ]
+    };
+    var blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+    var link = document.getElementById('manifestLink');
+    if (link) link.setAttribute('href', URL.createObjectURL(blob));
+  })();
+</script>
+<style>
+  :root{
+    --void: #05010f;
+    --deep: #0d0122;
+    --panel-a: rgba(16,4,38,.92);
+    --panel-b: rgba(28,6,58,.92);
+    --pink: #ff2fd8;
+    --purple: #8b2fff;
+    --cyan: #23e8ff;
+    --lavender: #b9a3e8;
+    --text-main: #f2ecff;
+    --text-muted: #a996d1;
+  }
+
+  *{
+    box-sizing:border-box;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+
+  html{ scroll-behavior:smooth; -webkit-tap-highlight-color: transparent; scrollbar-gutter: stable; }
+
+  body{
+    margin:0;
+    min-height:100vh;
+    min-height:100dvh;
+    background:var(--void);
+    color:var(--text-main);
+    font-family:'Rajdhani', sans-serif;
+    overflow-x:hidden;
+    position:relative;
+  }
+  body.intro-lock{ overflow:hidden; }
+
+  /* ---------- background layers (fixed, transform/opacity only) ---------- */
+
+  .bg-stars{
+    position:fixed; inset:0; z-index:-4;
+    background-image:
+      radial-gradient(1.5px 1.5px at 20% 30%, rgba(255,255,255,.9) 50%, transparent 51%),
+      radial-gradient(1px 1px at 70% 15%, rgba(255,255,255,.7) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 85% 60%, rgba(35,232,255,.8) 50%, transparent 51%),
+      radial-gradient(1px 1px at 10% 75%, rgba(255,255,255,.6) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 45% 85%, rgba(255,47,216,.7) 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 45%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 92% 25%, rgba(255,255,255,.8) 50%, transparent 51%),
+      radial-gradient(1px 1px at 33% 10%, rgba(255,255,255,.6) 50%, transparent 51%);
+    background-size: 220px 220px;
+    animation: twinkle 5s ease-in-out infinite alternate;
+  }
+  @keyframes twinkle{ from{ opacity:.55; } to{ opacity:1; } }
+
+  .sun{
+    position:fixed; left:50%; bottom:24vh; bottom:24dvh; z-index:-3;
+    width:min(48vw,520px); height:min(48vw,520px);
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:radial-gradient(circle at 50% 35%, #fff2fb 0%, var(--pink) 32%, var(--purple) 68%, transparent 80%);
+    box-shadow:0 0 140px 50px rgba(255,47,216,.35), 0 0 220px 100px rgba(139,47,255,.15);
+    overflow:hidden;
+  }
+  .sun::after{
+    content:"";
+    position:absolute; inset:0;
+    background:repeating-linear-gradient(to bottom, transparent 0 7px, var(--void) 7px 14px);
+    -webkit-mask-image:linear-gradient(to bottom, transparent 0%, transparent 38%, black 42%);
+            mask-image:linear-gradient(to bottom, transparent 0%, transparent 38%, black 42%);
+  }
+
+  .grid-floor{
+    position:fixed; left:0; right:0; bottom:0; height:58vh; height:58dvh; z-index:-2;
+    overflow:hidden; perspective:300px;
+    -webkit-mask-image:linear-gradient(to top, black 40%, transparent 95%);
+            mask-image:linear-gradient(to top, black 40%, transparent 95%);
+  }
+  .grid-floor__plane{
+    position:absolute; left:-50%; right:-50%; bottom:0; height:220%;
+    background-image:
+      repeating-linear-gradient(to right, rgba(139,47,255,.55) 0 2px, transparent 2px 64px),
+      repeating-linear-gradient(to top, rgba(35,232,255,.4) 0 2px, transparent 2px 44px);
+    transform:rotateX(65deg) translateY(0);
+    transform-origin:bottom center;
+    animation:gridMove 4s linear infinite;
+    will-change:transform;
+  }
+  @keyframes gridMove{
+    from{ transform:rotateX(65deg) translateY(0); }
+    to{ transform:rotateX(65deg) translateY(44px); }
+  }
+
+  .crt-overlay{
+    position:fixed; inset:0; z-index:2; pointer-events:none;
+    background:repeating-linear-gradient(to bottom, rgba(255,255,255,.035) 0 1px, transparent 1px 3px);
+    mix-blend-mode:overlay;
+  }
+  .vignette{
+    position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(ellipse at center, transparent 55%, rgba(2,0,10,.75) 100%);
+  }
+
+  /* ---------- layout ---------- */
+
+  .arcade{
+    position:relative; z-index:3;
+    max-width:1200px; margin:0 auto;
+    padding:clamp(2.5rem,6vw,4.5rem) 1.5rem 3rem;
+  }
+
+  header{
+    text-align:center;
+    margin-bottom:clamp(2.5rem,6vw,4rem);
+  }
+
+  h1.title{
+    font-family:'Press Start 2P', monospace;
+    font-size:clamp(1.4rem, 5.4vw, 3rem);
+    line-height:1.4;
+    margin:0;
+    letter-spacing:.03em;
+    color:var(--text-main);
+    text-shadow:
+      0 0 6px rgba(255,255,255,.6),
+      0 0 18px var(--pink),
+      0 0 42px var(--purple),
+      0 0 2px #fff;
+    animation:flicker 6s linear infinite;
+  }
+  h1.title .five{
+    background:linear-gradient(120deg, var(--cyan), var(--pink));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    filter:drop-shadow(0 0 18px rgba(35,232,255,.7));
+  }
+  @keyframes flicker{
+    0%,3%,5%,7%,100%{ opacity:1; }
+    4%{ opacity:.55; }
+    6%{ opacity:.85; }
+  }
+
+  .byline{
+    margin:.9rem 0 0;
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(.7rem,1.6vw,.85rem);
+    letter-spacing:.4em;
+    text-transform:uppercase;
+    color:var(--lavender);
+    font-weight:500;
+  }
+  .byline span{ color:var(--cyan); opacity:.7; margin:0 .6em; }
+
+  .subhead{
+    text-align:center;
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(.7rem,1.8vw,.95rem);
+    letter-spacing:.3em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:0 0 clamp(1.8rem,4vw,2.6rem);
+  }
+
+  .cabinet-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+    gap:clamp(1.25rem,3vw,2rem);
+    perspective:1000px;
+  }
+
+  .game-card{
+    position:relative;
+    max-width:400px; width:100%; justify-self:center;
+    clip-path:polygon(22px 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%, 0 22px);
+    background:linear-gradient(135deg, rgba(255,47,216,.85), rgba(35,232,255,.85));
+    padding:2px;
+    opacity:0;
+    animation:cardIn .6s ease forwards;
+    transition:transform .18s ease, box-shadow .25s ease;
+    transform-style:preserve-3d;
+  }
+  .game-card:nth-child(1){ animation-delay:.05s; }
+  .game-card:nth-child(2){ animation-delay:.15s; }
+  .game-card:nth-child(3){ animation-delay:.25s; }
+  .game-card:nth-child(4){ animation-delay:.35s; }
+  .game-card:nth-child(5){ animation-delay:.45s; }
+  @keyframes cardIn{
+    from{ opacity:0; transform:translateY(18px); }
+    to{ opacity:1; transform:translateY(0); }
+  }
+  .game-card:hover{
+    box-shadow:0 0 30px rgba(255,47,216,.35), 0 0 50px rgba(35,232,255,.2);
+  }
+
+  .game-card__inner{
+    clip-path:polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+    background:linear-gradient(165deg, var(--panel-a), var(--panel-b));
+    height:100%;
+    padding:1.9rem 1.6rem 1.6rem;
+    display:flex; flex-direction:column; align-items:flex-start; gap:.7rem;
+  }
+
+  /* Per-card themed background art — layered beneath the same translucent
+     panel gradient above (already ~92% opaque), so it stays a faint,
+     on-brand glow behind the content rather than competing with the text. */
+  .game-card--fighter .game-card__inner{
+    background-image:linear-gradient(165deg, var(--panel-a), var(--panel-b)), url('card-bg-fighter.jpg');
+    background-size:cover; background-position:center;
+  }
+  .game-card--turbo .game-card__inner{
+    background-image:linear-gradient(165deg, var(--panel-a), var(--panel-b)), url('card-bg-turbo.jpg');
+    background-size:cover; background-position:center;
+  }
+  .game-card--grid .game-card__inner{
+    background-image:linear-gradient(165deg, var(--panel-a), var(--panel-b)), url('card-bg-grid.jpg');
+    background-size:cover; background-position:center;
+  }
+  .game-card--space .game-card__inner{
+    background-image:linear-gradient(165deg, var(--panel-a), var(--panel-b)), url('card-bg-space.jpg');
+    background-size:cover; background-position:center;
+  }
+  .game-card--invader .game-card__inner{
+    background-image:linear-gradient(165deg, var(--panel-a), var(--panel-b)), url('card-bg-invader.jpg');
+    background-size:cover; background-position:center;
+  }
+
+  .emoji-badge{
+    width:58px; height:58px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:1.7rem;
+    border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, rgba(255,255,255,.12), rgba(139,47,255,.25));
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.12), 0 0 22px rgba(139,47,255,.55);
+    margin-bottom:.2rem;
+  }
+
+  .game-card h2{
+    font-family:'Orbitron', sans-serif;
+    font-weight:700;
+    font-size:1.05rem;
+    letter-spacing:.12em;
+    margin:0;
+    color:var(--text-main);
+    text-shadow:0 0 12px rgba(35,232,255,.4);
+  }
+
+  .game-card p{
+    margin:0;
+    font-size:1rem;
+    line-height:1.4;
+    color:var(--text-muted);
+    font-weight:500;
+    flex-grow:1;
+  }
+
+  .play-btn{
+    margin-top:.4rem;
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.65rem 1.5rem;
+    font-family:'Orbitron', sans-serif;
+    font-weight:700;
+    font-size:.8rem;
+    letter-spacing:.22em;
+    text-decoration:none;
+    color:var(--cyan);
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    background:linear-gradient(90deg, rgba(255,47,216,.14), rgba(35,232,255,.14));
+    box-shadow:0 0 0 1px rgba(35,232,255,.55) inset, 0 0 16px rgba(255,47,216,.35);
+    transition:transform .2s ease, box-shadow .25s ease, color .2s ease, background .25s ease;
+  }
+  .play-btn:hover, .play-btn:focus-visible{
+    color:#0a0014;
+    background:linear-gradient(90deg, var(--pink), var(--cyan));
+    box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 0 26px rgba(255,47,216,.75), 0 0 34px rgba(35,232,255,.55);
+    transform:translateY(-2px);
+  }
+  .play-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .play-btn .arrow{ transition:transform .2s ease; }
+  .play-btn:hover .arrow{ transform:translateX(3px); }
+
+  /* ---------- support / more games overlay ---------- */
+
+  .hub-caption{
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(.68rem,1.6vw,.85rem);
+    letter-spacing:.25em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    margin:0 0 1.3rem;
+  }
+  .hub-link{
+    display:inline-flex; align-items:center; gap:.7rem;
+    padding:.85rem 2rem;
+    text-decoration:none;
+    font-family:'Orbitron', sans-serif;
+    font-weight:700;
+    font-size:clamp(.82rem,2vw,1rem);
+    letter-spacing:.1em;
+    color:var(--text-main);
+    clip-path:polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px);
+    background:linear-gradient(120deg, rgba(255,47,216,.18), rgba(139,47,255,.2), rgba(35,232,255,.18));
+    box-shadow:0 0 0 1px rgba(255,47,216,.5) inset, 0 0 20px rgba(139,47,255,.4);
+    transition:transform .2s ease, box-shadow .25s ease, background .3s ease, color .2s ease;
+  }
+  .hub-link:hover, .hub-link:focus-visible{
+    transform:translateY(-3px);
+    color:#0a0014;
+    background:linear-gradient(120deg, var(--pink), var(--purple), var(--cyan));
+    box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 0 34px rgba(255,47,216,.7), 0 0 40px rgba(35,232,255,.5);
+  }
+  .hub-link:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .hub-link__arrow{ font-size:1.1em; transition:transform .2s ease; }
+  .hub-link:hover .hub-link__arrow{ transform:translate(3px,-3px); }
+
+  .support-overlay{
+    position:fixed; inset:0; z-index:150;
+    display:flex; align-items:center; justify-content:center;
+    padding:1.5rem;
+    background:rgba(5,1,15,.82);
+    backdrop-filter:blur(4px);
+    -webkit-backdrop-filter:blur(4px);
+    opacity:0; visibility:hidden;
+    transition:opacity .3s ease, visibility .3s ease;
+  }
+  .support-overlay.is-open{ opacity:1; visibility:visible; }
+
+  .support-panel{
+    position:relative;
+    max-width:380px; width:100%;
+    text-align:center;
+    padding:2.6rem 1.8rem 2.2rem;
+    background:linear-gradient(165deg, var(--panel-a), var(--panel-b));
+    clip-path:polygon(20px 0, 100% 0, 100% calc(100% - 20px), calc(100% - 20px) 100%, 0 100%, 0 20px);
+    box-shadow:0 0 0 1px rgba(35,232,255,.4) inset, 0 0 40px rgba(139,47,255,.5);
+    transform:translateY(14px) scale(.97);
+    transition:transform .3s ease;
+  }
+  .support-overlay.is-open .support-panel{ transform:translateY(0) scale(1); }
+
+  .support-close{
+    position:absolute; top:.6rem; right:.6rem;
+    width:2rem; height:2rem;
+    display:flex; align-items:center; justify-content:center;
+    background:transparent; border:none; cursor:pointer;
+    color:var(--text-muted); font-size:1.1rem; line-height:1;
+    transition:color .2s ease, transform .2s ease;
+  }
+  .support-close:hover, .support-close:focus-visible{ color:var(--cyan); transform:scale(1.1); }
+  .support-close:focus-visible{ outline:2px solid var(--cyan); outline-offset:2px; }
+
+
+  footer{
+    text-align:center;
+    margin-top:clamp(2.5rem,6vw,4rem);
+  }
+  .insert-coin{
+    font-family:'Press Start 2P', monospace;
+    font-size:.7rem;
+    letter-spacing:.15em;
+    color:var(--cyan);
+    text-shadow:0 0 10px rgba(35,232,255,.7);
+    animation:blink 1.4s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+  .copyright{
+    margin-top:.9rem;
+    font-family:'Orbitron', sans-serif;
+    font-size:.65rem;
+    letter-spacing:.25em;
+    text-transform:uppercase;
+    color:var(--text-muted);
+    opacity:.6;
+  }
+
+  /* ---------- top-right toolbar (install + support) ---------- */
+
+  .top-right-tools{
+    position:fixed; top:1rem; right:1rem; z-index:20;
+    display:flex; align-items:center; gap:.6rem;
+  }
+
+  .install-btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.55rem 1rem .55rem .8rem;
+    font-family:'Orbitron', sans-serif;
+    font-weight:700; font-size:.7rem; letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    background:linear-gradient(90deg, rgba(255,47,216,.14), rgba(35,232,255,.14));
+    border:none; cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    box-shadow:0 0 0 1px rgba(35,232,255,.55) inset, 0 0 16px rgba(255,47,216,.35);
+    opacity:0; transform:translateY(-10px);
+    pointer-events:none;
+    transition:opacity .3s ease, transform .3s ease, box-shadow .25s ease, background .25s ease, color .2s ease;
+  }
+  .install-btn.is-visible{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .install-btn:hover, .install-btn:focus-visible{
+    color:#0a0014;
+    background:linear-gradient(90deg, var(--pink), var(--cyan));
+    box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 0 26px rgba(255,47,216,.7);
+  }
+  .install-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .install-btn .bell{ position:relative; font-size:.9rem; line-height:1; }
+  .install-btn .bell::after{
+    content:""; position:absolute; top:-3px; right:-4px; width:7px; height:7px; border-radius:50%;
+    background:var(--pink); box-shadow:0 0 6px var(--pink);
+    animation:pulseDot 1.6s ease-in-out infinite;
+  }
+  @keyframes pulseDot{
+    0%,100%{ transform:scale(1); opacity:1; }
+    50%{ transform:scale(1.6); opacity:.5; }
+  }
+
+  .support-btn{
+    display:inline-flex; align-items:center; gap:.5rem;
+    padding:.55rem 1rem .55rem .8rem;
+    font-family:'Orbitron', sans-serif;
+    font-weight:700; font-size:.7rem; letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    background:linear-gradient(90deg, rgba(139,47,255,.18), rgba(35,232,255,.14));
+    border:none; cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    box-shadow:0 0 0 1px rgba(139,47,255,.55) inset, 0 0 16px rgba(139,47,255,.35);
+    transition:box-shadow .3s ease, background .3s ease, color .2s ease;
+  }
+  .support-btn:hover, .support-btn:focus-visible{
+    color:#0a0014;
+    background:linear-gradient(90deg, var(--purple), var(--cyan));
+    box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 0 26px rgba(139,47,255,.7);
+  }
+  .support-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .support-btn .gamepad{ font-size:.9rem; line-height:1; }
+
+  .install-toast{
+    position:fixed; left:50%; bottom:1.5rem; z-index:30;
+    transform:translate(-50%, 12px);
+    max-width:88vw; text-align:center;
+    background:linear-gradient(165deg, var(--panel-a), var(--panel-b));
+    box-shadow:0 0 0 1px rgba(35,232,255,.4) inset, 0 0 26px rgba(139,47,255,.45);
+    color:var(--text-main); font-family:'Rajdhani', sans-serif; font-weight:600; font-size:.95rem;
+    padding:.8rem 1.2rem; border-radius:10px;
+    opacity:0; pointer-events:none;
+    transition:opacity .3s ease, transform .3s ease;
+  }
+  .install-toast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  /* ---------- sound toggle ---------- */
+
+  .sound-btn{
+    position:fixed; top:1rem; left:1rem; z-index:20;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:2.4rem; height:2.4rem;
+    font-size:1rem;
+    color:var(--cyan);
+    background:linear-gradient(90deg, rgba(255,47,216,.14), rgba(35,232,255,.14));
+    border:none; cursor:pointer;
+    clip-path:polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+    box-shadow:0 0 0 1px rgba(35,232,255,.55) inset, 0 0 16px rgba(255,47,216,.35);
+    transition:box-shadow .3s ease, background .3s ease, color .2s ease;
+  }
+  .sound-btn:hover, .sound-btn:focus-visible{
+    color:#0a0014;
+    background:linear-gradient(90deg, var(--pink), var(--cyan));
+    box-shadow:0 0 0 1px rgba(255,255,255,.6) inset, 0 0 26px rgba(255,47,216,.7);
+  }
+  .sound-btn:focus-visible{ outline:2px solid var(--cyan); outline-offset:3px; }
+  .sound-btn.is-on{
+    box-shadow:0 0 0 1px rgba(35,232,255,.8) inset, 0 0 22px rgba(35,232,255,.55), 0 0 30px rgba(255,47,216,.35);
+  }
+
+  /* ---------- intro screen ---------- */
+
+  .intro-screen{
+    position:fixed; inset:0; z-index:100;
+    display:flex; align-items:center; justify-content:center;
+    background:radial-gradient(ellipse at center, rgba(24,5,54,.94) 0%, rgba(5,1,15,.99) 78%);
+    cursor:pointer;
+    opacity:1;
+    transition:opacity .9s ease;
+  }
+  .intro-screen.is-hidden{
+    opacity:0;
+    pointer-events:none;
+  }
+  .intro-screen:focus-visible{ outline:none; }
+  .intro-screen{ outline:none; }
+  .intro-inner{ text-align:center; padding:2rem; }
+
+  .intro-eyebrow{
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(.6rem,1.6vw,.8rem);
+    letter-spacing:.5em;
+    text-transform:uppercase;
+    color:var(--cyan);
+    margin:0 0 1.2rem;
+    opacity:.85;
+  }
+
+  .intro-title{
+    font-family:'Press Start 2P', monospace;
+    font-size:clamp(1.1rem,4.6vw,2.2rem);
+    line-height:1.5;
+    margin:0;
+    letter-spacing:.03em;
+    color:var(--text-main);
+    text-shadow:
+      0 0 6px rgba(255,255,255,.6),
+      0 0 18px var(--pink),
+      0 0 42px var(--purple);
+  }
+  .intro-title .five{
+    background:linear-gradient(120deg, var(--cyan), var(--pink));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    filter:drop-shadow(0 0 18px rgba(35,232,255,.7));
+  }
+
+  .intro-byline{
+    margin:.9rem 0 2.6rem;
+    font-family:'Orbitron', sans-serif;
+    font-size:clamp(.6rem,1.4vw,.75rem);
+    letter-spacing:.35em;
+    text-transform:uppercase;
+    color:var(--lavender);
+  }
+  .intro-byline span{ color:var(--cyan); opacity:.7; margin:0 .5em; }
+
+  .intro-prompt{
+    font-family:'Press Start 2P', monospace;
+    font-size:clamp(.7rem,2.2vw,.95rem);
+    letter-spacing:.15em;
+    color:var(--cyan);
+    text-shadow:0 0 12px rgba(35,232,255,.7);
+    animation:blink 1.2s steps(1) infinite;
+  }
+
+  @media (max-width:520px){
+    .arcade{ padding-top:5.6rem; }
+    .byline{ letter-spacing:.25em; }
+    .install-btn .install-label{ display:none; }
+    .install-btn{ padding:.6rem; }
+    .support-btn .support-label{ display:none; }
+    .support-btn{ padding:.6rem; }
+    .top-right-tools{ gap:.5rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition:none !important; }
+    .game-card{ opacity:1; transform:none; }
+  }
+</style>
+</head>
+<body>
+
+  <div id="introScreen" class="intro-screen" tabindex="0" role="button" aria-label="Tap to enter Retro Arcade 5">
+    <div class="intro-inner">
+      <p class="intro-eyebrow">Insert Coin</p>
+      <h2 class="intro-title">RETRO ARCADE <span class="five">5</span></h2>
+      <p class="intro-byline"><span>—</span>by Savior<span>—</span></p>
+      <p class="intro-prompt">TAP TO ENTER</p>
+    </div>
+  </div>
+
+  <div class="top-right-tools">
+    <button id="installBtn" class="install-btn" type="button" aria-label="Install this app">
+      <span class="bell" aria-hidden="true">🔔</span>
+      <span class="install-label">Install App</span>
+    </button>
+
+    <button id="supportBtn" class="support-btn" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="supportOverlay" aria-label="More games">
+      <span class="gamepad" aria-hidden="true">🎮</span>
+      <span class="support-label">More Games</span>
+    </button>
+  </div>
+
+  <button id="soundBtn" class="sound-btn is-on" type="button" aria-label="Toggle background music" aria-pressed="true">
+    <span class="sound-icon" aria-hidden="true">🔊</span>
+  </button>
+
+  <div id="supportOverlay" class="support-overlay" aria-hidden="true">
+    <div class="support-panel" role="dialog" aria-modal="true" aria-labelledby="supportTitle">
+      <button id="supportClose" class="support-close" type="button" aria-label="Close">✕</button>
+      <p class="hub-caption" id="supportTitle">Check out my other games at</p>
+      <a class="hub-link" href="https://xavierchua10-dotcom.github.io/SaviorGamingHub/" target="_blank" rel="noopener noreferrer">
+        <span class="hub-link__label">Savior Gaming Hub</span>
+        <span class="hub-link__arrow" aria-hidden="true">↗</span>
+      </a>
+    </div>
+  </div>
+
+  <div class="bg-stars"></div>
+  <div class="sun"></div>
+  <div class="grid-floor"><div class="grid-floor__plane"></div></div>
+  <div class="vignette"></div>
+  <div class="crt-overlay"></div>
+
+  <div class="arcade">
+    <header>
+      <h1 class="title">RETRO ARCADE <span class="five">5</span></h1>
+      <p class="byline"><span>—</span>by Savior<span>—</span></p>
+    </header>
+
+    <p class="subhead">Select Your Game</p>
+
+    <main class="cabinet-grid">
+
+      <article class="game-card game-card--fighter">
+        <div class="game-card__inner">
+          <div class="emoji-badge">🕹️</div>
+          <h2>Game 01</h2>
+          <p>A classic arcade challenge waiting for you to set the high score.</p>
+          <a class="play-btn" href="game1.html">PLAY <span class="arrow">➤</span></a>
+        </div>
+      </article>
+
+      <article class="game-card game-card--turbo">
+        <div class="game-card__inner">
+          <div class="emoji-badge">🚗</div>
+          <h2>Game 02</h2>
+          <p>Floor it through neon-lit streets at breakneck speed.</p>
+          <a class="play-btn" href="game2.html">PLAY <span class="arrow">➤</span></a>
+        </div>
+      </article>
+
+      <article class="game-card game-card--grid">
+        <div class="game-card__inner">
+          <div class="emoji-badge">🐍</div>
+          <h2>Game 03</h2>
+          <p>Slither, grow, and outlast every rival on the grid.</p>
+          <a class="play-btn" href="game3.html">PLAY <span class="arrow">➤</span></a>
+        </div>
+      </article>
+
+      <article class="game-card game-card--space">
+        <div class="game-card__inner">
+          <div class="emoji-badge">🚀</div>
+          <h2>Game 04</h2>
+          <p>Blast off into deep space and dodge the impossible.</p>
+          <a class="play-btn" href="game4.html">PLAY <span class="arrow">➤</span></a>
+        </div>
+      </article>
+
+      <article class="game-card game-card--invader">
+        <div class="game-card__inner">
+          <div class="emoji-badge">👾</div>
+          <h2>Game 05</h2>
+          <p>Hold the line against wave after wave of invaders.</p>
+          <a class="play-btn" href="game5.html">PLAY <span class="arrow">➤</span></a>
+        </div>
+      </article>
+
+    </main>
+
+    <footer>
+      <p class="insert-coin">INSERT COIN TO CONTINUE</p>
+      <p class="copyright">Savior Arcade</p>
+    </footer>
+  </div>
+
+  <script>
+  (function(){
+    var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var finePointer = window.matchMedia('(pointer: fine)').matches;
+    if (reduceMotion || !finePointer) return;
+
+    var cards = document.querySelectorAll('.game-card');
+    cards.forEach(function(card){
+      card.addEventListener('pointermove', function(e){
+        var rect = card.getBoundingClientRect();
+        var x = (e.clientX - rect.left) / rect.width - 0.5;
+        var y = (e.clientY - rect.top) / rect.height - 0.5;
+        card.style.transform = 'rotateY(' + (x * 8) + 'deg) rotateX(' + (-y * 8) + 'deg) translateY(-4px)';
+      });
+      card.addEventListener('pointerleave', function(){
+        card.style.transform = '';
+      });
+    });
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var installBtn = document.getElementById('installBtn');
+    if (!installBtn) return;
+
+    var deferredPrompt = null;
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    if (isStandalone) {
+      installBtn.remove();
+      return;
+    }
+
+    window.addEventListener('beforeinstallprompt', function(e){
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.add('is-visible');
+    });
+
+    window.addEventListener('appinstalled', function(){
+      installBtn.classList.remove('is-visible');
+      deferredPrompt = null;
+    });
+
+    // Fallback for browsers that never fire beforeinstallprompt (iOS Safari, Firefox, etc.)
+    setTimeout(function(){
+      installBtn.classList.add('is-visible');
+    }, 1500);
+
+    installBtn.addEventListener('click', function(){
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(function(){
+          deferredPrompt = null;
+        });
+      } else {
+        showInstallToast();
+      }
+    });
+
+    function showInstallToast(){
+      var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+      var msg = isIOS
+        ? 'Tap the Share icon in your browser, then "Add to Home Screen".'
+        : 'Open your browser menu and choose "Install app" (or "Add to Home Screen").';
+      var toast = document.createElement('div');
+      toast.className = 'install-toast';
+      toast.textContent = msg;
+      document.body.appendChild(toast);
+      requestAnimationFrame(function(){ toast.classList.add('show'); });
+      setTimeout(function(){
+        toast.classList.remove('show');
+        setTimeout(function(){ toast.remove(); }, 400);
+      }, 3200);
+    }
+  })();
+  </script>
+
+  <script>
+  // Procedurally generated ambient synthwave pad loop — no audio file needed,
+  // so the whole page stays a single self-contained file. Lives only on this
+  // menu page: it never gets included on the individual game pages.
+  var Music = (function(){
+    var ctx, master, comp, delay, feedback, damp;
+    var running = false, muted = false;
+    var chordIndex = 0, chordTimer = null, arpTimer = null, suspendTimer = null;
+    var currentPad = null, bassOsc = null, bassGain = null;
+    var TARGET_VOL = 0.16;
+
+    var CHORDS = [
+      { root: 53, tones: [53, 56, 60] }, // Fm
+      { root: 56, tones: [56, 60, 63] }, // Ab
+      { root: 51, tones: [51, 55, 58] }, // Ebmaj
+      { root: 46, tones: [46, 50, 53] }  // Bb
+    ];
+
+    function noteFreq(m){ return 440 * Math.pow(2, (m - 69) / 12); }
+
+    function ensureContext(){
+      if (ctx) return;
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return;
+      ctx = new AC();
+
+      master = ctx.createGain();
+      master.gain.value = 0;
+
+      comp = ctx.createDynamicsCompressor();
+      delay = ctx.createDelay(1.2);
+      delay.delayTime.value = 0.42;
+      feedback = ctx.createGain();
+      feedback.gain.value = 0.26;
+      damp = ctx.createBiquadFilter();
+      damp.type = 'lowpass';
+      damp.frequency.value = 2200;
+
+      delay.connect(damp);
+      damp.connect(feedback);
+      feedback.connect(delay);
+
+      master.connect(comp);
+      comp.connect(ctx.destination);
+      master.connect(delay);
+      delay.connect(comp);
+    }
+
+    function playPad(chord){
+      var filter = ctx.createBiquadFilter();
+      filter.type = 'lowpass';
+      filter.frequency.value = 900;
+      filter.Q.value = 0.6;
+
+      var padGain = ctx.createGain();
+      padGain.gain.value = 0;
+      filter.connect(padGain);
+      padGain.connect(master);
+
+      var oscs = [];
+      chord.tones.forEach(function(m){
+        [-4, 4].forEach(function(detune){
+          var osc = ctx.createOscillator();
+          osc.type = 'sawtooth';
+          osc.frequency.value = noteFreq(m) / 2;
+          osc.detune.value = detune;
+          osc.connect(filter);
+          osc.start();
+          oscs.push(osc);
+        });
+      });
+
+      var now = ctx.currentTime;
+      padGain.gain.linearRampToValueAtTime(0.5, now + 2.2);
+      filter.frequency.setValueAtTime(700, now);
+      filter.frequency.linearRampToValueAtTime(1400, now + 4);
+      filter.frequency.linearRampToValueAtTime(700, now + 8);
+
+      return { oscs: oscs, gain: padGain };
+    }
+
+    function stopPad(pad, atTime){
+      pad.gain.gain.cancelScheduledValues(atTime);
+      pad.gain.gain.setValueAtTime(pad.gain.gain.value, atTime);
+      pad.gain.gain.linearRampToValueAtTime(0, atTime + 1.8);
+      pad.oscs.forEach(function(o){ o.stop(atTime + 2); });
+    }
+
+    function playBassFor(chord){
+      var now = ctx.currentTime;
+      if (bassOsc){
+        bassGain.gain.cancelScheduledValues(now);
+        bassGain.gain.setValueAtTime(bassGain.gain.value, now);
+        bassGain.gain.linearRampToValueAtTime(0, now + 0.4);
+        bassOsc.stop(now + 0.5);
+      }
+      bassOsc = ctx.createOscillator();
+      bassOsc.type = 'sine';
+      bassOsc.frequency.value = noteFreq(chord.root - 24);
+      bassGain = ctx.createGain();
+      bassGain.gain.value = 0;
+      bassOsc.connect(bassGain);
+      bassGain.connect(master);
+      bassOsc.start();
+      bassGain.gain.linearRampToValueAtTime(0.32, ctx.currentTime + 1.5);
+    }
+
+    function nextChord(){
+      var chord = CHORDS[chordIndex % CHORDS.length];
+      chordIndex++;
+      var now = ctx.currentTime;
+      var newPad = playPad(chord);
+      if (currentPad) stopPad(currentPad, now);
+      currentPad = newPad;
+      playBassFor(chord);
+      chordTimer = setTimeout(nextChord, 8000);
+    }
+
+    function pluckArp(){
+      if (!running) return;
+      var chord = CHORDS[(chordIndex - 1 + CHORDS.length) % CHORDS.length];
+      var m = chord.tones[Math.floor(Math.random() * chord.tones.length)] + 12;
+      var osc = ctx.createOscillator();
+      osc.type = 'triangle';
+      osc.frequency.value = noteFreq(m);
+      var g = ctx.createGain();
+      g.gain.value = 0;
+      osc.connect(g);
+      g.connect(master);
+      var now = ctx.currentTime;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.16, now + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+      osc.start(now);
+      osc.stop(now + 1);
+      arpTimer = setTimeout(pluckArp, 550 + Math.random() * 350);
+    }
+
+    function setMuted(m){
+      muted = m;
+      if (!ctx) return;
+      clearTimeout(suspendTimer);
+      var now = ctx.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setValueAtTime(master.gain.value, now);
+      if (muted){
+        master.gain.linearRampToValueAtTime(0, now + 0.6);
+        suspendTimer = setTimeout(function(){
+          if (muted && ctx.state === 'running') ctx.suspend();
+        }, 650);
+      } else {
+        if (ctx.state === 'suspended') ctx.resume();
+        master.gain.linearRampToValueAtTime(TARGET_VOL, now + 0.8);
+      }
+    }
+
+    function start(){
+      ensureContext();
+      if (!ctx) return false;
+      if (ctx.state === 'suspended') ctx.resume();
+      if (!running){
+        running = true;
+        chordIndex = 0;
+        nextChord();
+        pluckArp();
+      }
+      setMuted(false);
+      return true;
+    }
+
+    function toggle(){
+      if (!running){ return start() ? true : false; }
+      setMuted(!muted);
+      return !muted;
+    }
+
+    function onHidden(){ if (ctx && ctx.state === 'running') ctx.suspend(); }
+    function onVisible(){ if (ctx && running && !muted && ctx.state === 'suspended') ctx.resume(); }
+
+    document.addEventListener('visibilitychange', function(){
+      if (document.hidden) onHidden(); else onVisible();
+    });
+
+    return { start: start, toggle: toggle, isPlaying: function(){ return running && !muted; } };
+  })();
+
+  (function(){
+    var soundBtn = document.getElementById('soundBtn');
+    var introScreen = document.getElementById('introScreen');
+
+    function updateSoundUI(playing){
+      if (!soundBtn) return;
+      var icon = soundBtn.querySelector('.sound-icon');
+      icon.textContent = playing ? '🔊' : '🔇';
+      soundBtn.classList.toggle('is-on', playing);
+      soundBtn.setAttribute('aria-pressed', playing ? 'true' : 'false');
+    }
+
+    function enterArcade(){
+      if (!introScreen || introScreen.classList.contains('is-hidden')) return;
+      updateSoundUI(Music.start());
+      introScreen.classList.add('is-hidden');
+      introScreen.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('intro-lock');
+      setTimeout(function(){ if (introScreen.parentNode) introScreen.remove(); }, 950);
+    }
+
+    if (introScreen){
+      document.body.classList.add('intro-lock');
+      introScreen.addEventListener('click', enterArcade);
+      introScreen.addEventListener('keydown', function(e){
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar'){
+          e.preventDefault();
+          enterArcade();
+        }
+      });
+      introScreen.focus();
+    }
+
+    if (soundBtn){
+      soundBtn.addEventListener('click', function(){
+        updateSoundUI(Music.toggle());
+      });
+    }
+  })();
+  </script>
+
+  <script>
+  (function(){
+    var supportBtn = document.getElementById('supportBtn');
+    var overlay = document.getElementById('supportOverlay');
+    var closeBtn = document.getElementById('supportClose');
+    if (!supportBtn || !overlay || !closeBtn) return;
+
+    function onKeydown(e){
+      if (e.key === 'Escape') closePanel();
+    }
+
+    function openPanel(){
+      overlay.classList.add('is-open');
+      overlay.setAttribute('aria-hidden', 'false');
+      supportBtn.setAttribute('aria-expanded', 'true');
+      closeBtn.focus();
+      document.addEventListener('keydown', onKeydown);
+    }
+
+    function closePanel(){
+      overlay.classList.remove('is-open');
+      overlay.setAttribute('aria-hidden', 'true');
+      supportBtn.setAttribute('aria-expanded', 'false');
+      supportBtn.focus();
+      document.removeEventListener('keydown', onKeydown);
+    }
+
+    supportBtn.addEventListener('click', openPanel);
+    closeBtn.addEventListener('click', closePanel);
+    overlay.addEventListener('click', function(e){
+      if (e.target === overlay) closePanel();
+    });
+  })();
+  </script>
+
+</body>
+</html>
