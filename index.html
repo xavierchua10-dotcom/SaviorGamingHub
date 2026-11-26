@@ -514,6 +514,13 @@
     *{ animation-duration:.001ms !important; animation-iteration-count:1 !important; transition:none !important; }
     .game-card{ opacity:1; transform:none; }
   }
+
+  .game-frame-wrap{position:fixed;inset:0;z-index:9999;background:#05010f;display:none;flex-direction:column}
+  .game-frame-wrap.open{display:flex}
+  .game-frame-bar{flex:none;height:38px;display:flex;align-items:center;gap:10px;padding:0 10px;background:#0d0122;border-bottom:1px solid #4a2a8a}
+  .game-frame-bar button{font:700 13px/1 Orbitron,system-ui,sans-serif;letter-spacing:.08em;color:#fff;background:linear-gradient(90deg,#ff2fd8,#8b2fff);border:0;border-radius:8px;padding:8px 12px}
+  .game-frame-bar span{font:600 14px Rajdhani,system-ui,sans-serif;color:#b9a8e0;letter-spacing:.06em}
+  .game-frame-wrap iframe{flex:1;width:100%;border:0;background:#05010f}
 </style>
 </head>
 <body>
@@ -617,7 +624,7 @@
           <div class="emoji-badge">🕹️</div>
           <h2>Retro Arcade</h2>
           <p>Five classic cabinets, one neon corridor. Step in and set a high score.</p>
-          <a class="play-btn" href="arcade/">ENTER <span class="arrow">➤</span></a>
+          <a class="play-btn" href="arcade/" data-game="arcade/" data-title="Retro Arcade">ENTER <span class="arrow">➤</span></a>
         </div>
       </article>
 
@@ -627,7 +634,7 @@
           <div class="emoji-badge">🎱</div>
           <h2>Pool</h2>
           <p>Rack 'em up in a smoky back-room hall. Trick shots and hustles await.</p>
-          <a class="play-btn" href="pool/">ENTER <span class="arrow">➤</span></a>
+          <a class="play-btn" href="pool/" data-game="pool/" data-title="Pool">ENTER <span class="arrow">➤</span></a>
         </div>
       </article>
 
@@ -637,7 +644,7 @@
           <div class="emoji-badge">🧭</div>
           <h2>Finding Purposes in Life</h2>
           <p>Wander forgotten ruins in search of meaning, one quiet step at a time.</p>
-          <a class="play-btn" href="pixelart/">ENTER <span class="arrow">➤</span></a>
+          <a class="play-btn" href="pixelart/" data-game="pixelart/" data-title="Finding Purposes in Life">ENTER <span class="arrow">➤</span></a>
         </div>
       </article>
 
@@ -647,7 +654,7 @@
           <div class="emoji-badge">🔮</div>
           <h2>Orb Spire</h2>
           <p>Drag orbs, chain combos and climb the spire. An early build, more is coming.</p>
-          <a class="play-btn" href="orbspire/">ENTER <span class="arrow">➤</span></a>
+          <a class="play-btn" href="orbspire/" data-game="orbspire/" data-title="Orb Spire">ENTER <span class="arrow">➤</span></a>
         </div>
       </article>
 
@@ -716,5 +723,31 @@
   })();
   </script>
 
+  <div class="game-frame-wrap" id="gameFrameWrap" aria-hidden="true">
+    <div class="game-frame-bar"><button type="button" id="gameFrameBack">‹ HUB</button><span id="gameFrameTitle"></span></div>
+      </div>
+  <script>
+  (function(){
+    var wrap=document.getElementById('gameFrameWrap'), frame=null, ttl=document.getElementById('gameFrameTitle');
+    function open(href,title,push){
+      if(frame) frame.remove();
+      frame=document.createElement('iframe'); frame.id='gameFrame'; frame.title='Game'; frame.setAttribute('allow','autoplay; fullscreen; gamepad'); frame.src=href; wrap.appendChild(frame);
+      ttl.textContent=title||''; wrap.classList.add('open'); wrap.setAttribute('aria-hidden','false');
+      document.documentElement.style.overflow='hidden';
+      if(push){ try{ history.pushState({game:href},'',location.pathname+location.search); }catch(e){} }
+    }
+    function close(){
+      wrap.classList.remove('open'); wrap.setAttribute('aria-hidden','true'); if(frame){ frame.remove(); frame=null; }
+      document.documentElement.style.overflow='';
+    }
+    document.querySelectorAll('[data-game]').forEach(function(a){
+      a.addEventListener('click',function(e){ e.preventDefault(); open(a.getAttribute('data-game'),a.getAttribute('data-title'),true); });
+    });
+    document.getElementById('gameFrameBack').addEventListener('click',function(){
+      close();
+    });
+    window.addEventListener('popstate',function(){ close(); });
+  })();
+  </script>
 </body>
 </html>
