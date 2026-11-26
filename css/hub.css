@@ -196,7 +196,6 @@
 
   .card-bg-arcade{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('../images/retro-arcade-bg.jpg'); background-size:cover; background-position:center; }
   .card-bg-pool{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('../images/pool-bg.jpg'); background-size:cover; background-position:center; }
-  .card-bg-orb{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), radial-gradient(circle at 70% 20%, #5b1fd1, #12043a 70%); background-size:cover; background-position:center; }
   .card-bg-purpose{ background-image:linear-gradient(165deg, rgba(16,4,38,.78), rgba(28,6,58,.85)), url('../images/finding-purpose-bg.jpg'); background-size:cover; background-position:center; }
 
   .status-row{

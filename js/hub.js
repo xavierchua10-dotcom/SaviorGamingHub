@@ -59,7 +59,7 @@
 (function(){
   var wrap=document.getElementById('gameFrameWrap'), ttl=document.getElementById('gameFrameTitle');
   var frame=null, pushed=false, token=0, cache={}, savedY=0;
-  var TITLES={arcade:'Retro Arcade',pool:'Pool',pixelart:'Finding Purposes in Life',orbspire:'Orb Spire'};
+  var TITLES={arcade:'Retro Arcade',pool:'Pool',pixelart:'Finding Purposes in Life'};
   function load(key){
     if(cache[key]) return Promise.resolve(cache[key]);
     return fetch('games/'+key+'.html').then(function(r){
